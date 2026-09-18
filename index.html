@@ -1,254 +1,576 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>روم آنلاین</title>
 
-  <title>چت روم 123</title>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+* {
+  box-sizing: border-box;
+}
 
-  <style>
-    body {
-      margin: 0;
-      background: #20232a;
-      color: white;
-      font-family: Arial;
-      padding: 20px;
-      text-align: center;
-    }
+body {
+  margin: 0;
+  background: #20232a;
+  color: white;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
 
-    .box {
-      max-width: 350px;
-      margin: auto;
-      background: #2c303a;
-      padding: 20px;
-      border-radius: 15px;
-    }
+.box {
+  max-width: 400px;
+  margin: auto;
+  background: #2c303a;
+  padding: 20px;
+  border-radius: 15px;
+}
 
-    input, button {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 12px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-    }
+h2, h3 {
+  text-align: center;
+}
 
-    button {
-      background: #4caf50;
-      color: white;
-    }
+input, button {
+  width: 100%;
+  padding: 13px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+}
 
-    #chat {
-      display: none;
-    }
+button {
+  background: #4caf50;
+  color: white;
+  cursor: pointer;
+}
 
-    #messages {
-      height: 250px;
-      overflow-y: auto;
-      background: #181a1f;
-      margin-top: 15px;
-      padding: 10px;
-      border-radius: 10px;
-      text-align: right;
-    }
+button:active {
+  transform: scale(.98);
+}
 
-    .msg {
-      background: #3c4350;
-      padding: 8px;
-      margin: 5px 0;
-      border-radius: 8px;
-    }
+#chat {
+  display: none;
+}
 
-    .me {
-      background: #286b40;
-    }
+#messages {
+  height: 240px;
+  overflow-y: auto;
+  background: #181a1f;
+  padding: 10px;
+  margin-top: 15px;
+  border-radius: 10px;
+}
 
-    #status {
-      margin: 15px 0;
-    }
-  </style>
+.msg {
+  background: #3c4350;
+  padding: 9px;
+  margin: 6px 0;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+
+.players {
+  background: #181a1f;
+  padding: 10px;
+  margin-top: 15px;
+  border-radius: 10px;
+}
+
+.player {
+  padding: 9px;
+  border-bottom: 1px solid #444;
+}
+
+#status {
+  text-align: center;
+  margin-top: 15px;
+  white-space: pre-line;
+}
+
+#roomInfo {
+  text-align: center;
+  color: #aaa;
+  margin-top: 10px;
+}
+</style>
 </head>
 
 <body>
 
-  <div class="box">
+<div class="box">
 
-    <div id="login">
+  <div id="login">
 
-      <h2>🎮 روم 123</h2>
+    <h2>🎮 ورود به روم</h2>
 
-      <input
-        id="room"
-        placeholder="کد روم"
-        maxlength="3"
-      >
+    <input
+      id="name"
+      placeholder="اسم شما"
+      maxlength="20"
+    >
 
-      <button onclick="createRoom()">
-        ساخت روم
-      </button>
+    <input
+      id="room"
+      placeholder="کد روم دلخواه"
+      maxlength="30"
+    >
 
-      <button onclick="joinRoom()">
-        ورود به روم
-      </button>
+    <button onclick="createRoom()">
+      👑 ساخت روم
+    </button>
 
-      <div id="status">آماده اتصال</div>
+    <button onclick="joinRoom()">
+      🚪 ورود به روم
+    </button>
 
-    </div>
-
-    <div id="chat">
-
-      <h2>💬 چت آنلاین</h2>
-
-      <div id="messages"></div>
-
-      <input
-        id="message"
-        placeholder="پیامت رو بنویس..."
-      >
-
-      <button onclick="sendMessage()">
-        ارسال پیام 📤
-      </button>
-
-    </div>
+    <div id="status">آماده اتصال</div>
 
   </div>
 
-  <script>
 
-    let peer;
-    let connection;
+  <div id="chat">
 
-    const status = document.getElementById("status");
+    <h2>🎮 روم آنلاین</h2>
 
-    function createRoom() {
+    <div id="roomInfo"></div>
 
-      const code = document.getElementById("room").value;
+    <div class="players">
 
-      if (code !== "123") {
-        status.innerText = "❌ فقط روم 123 وجود دارد";
-        return;
+      <h3>👥 بازیکنان (حداکثر ۵ نفر)</h3>
+
+      <div id="playersList"></div>
+
+    </div>
+
+    <div id="messages"></div>
+
+    <input
+      id="message"
+      placeholder="پیامت رو بنویس..."
+      maxlength="500"
+    >
+
+    <button onclick="sendMessage()">
+      📤 ارسال پیام
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const MAX_PLAYERS = 5;
+
+let peer = null;
+let myName = "";
+let roomID = "";
+let isHost = false;
+
+let players = [];
+let connections = [];
+
+const status = document.getElementById("status");
+
+
+// نمایش خطا
+function showStatus(text) {
+  status.innerText = text;
+}
+
+
+// بررسی ورودی‌ها
+function getInputs() {
+
+  const name = document.getElementById("name").value.trim();
+  const code = document.getElementById("room").value.trim();
+
+  if (!name) {
+    showStatus("❌ اسم خود را وارد کنید");
+    return null;
+  }
+
+  if (!code) {
+    showStatus("❌ کد روم را وارد کنید");
+    return null;
+  }
+
+  return { name, code };
+
+}
+
+
+// ساخت روم
+function createRoom() {
+
+  const data = getInputs();
+
+  if (!data) return;
+
+  myName = data.name;
+  roomID = "room-" + data.code;
+
+  isHost = true;
+
+  showStatus("🔄 در حال ساخت روم...");
+
+  peer = new Peer(roomID);
+
+  peer.on("open", function() {
+
+    players = [
+      {
+        id: peer.id,
+        name: myName,
+        host: true
+      }
+    ];
+
+    openChat();
+
+    addMessage("👑 روم ساخته شد", false);
+
+    updatePlayers();
+
+  });
+
+
+  peer.on("connection", function(conn) {
+
+    if (players.length >= MAX_PLAYERS) {
+
+      conn.on("open", function() {
+
+        conn.send({
+          type: "full"
+        });
+
+        conn.close();
+
+      });
+
+      return;
+
+    }
+
+    connections.push(conn);
+
+    conn.on("open", function() {
+
+      conn.send({
+        type: "players",
+        players: players
+      });
+
+    });
+
+
+    conn.on("data", function(data) {
+
+      handleHostData(conn, data);
+
+    });
+
+
+    conn.on("close", function() {
+
+      connections = connections.filter(c => c !== conn);
+
+      players = players.filter(p => p.id !== conn.peer);
+
+      broadcast({
+        type: "players",
+        players: players
+      });
+
+      updatePlayers();
+
+    });
+
+  });
+
+
+  peer.on("error", function(err) {
+
+    showStatus("❌ خطا: " + err.type);
+
+  });
+
+}
+
+
+// ورود به روم
+function joinRoom() {
+
+  const data = getInputs();
+
+  if (!data) return;
+
+  myName = data.name;
+  roomID = "room-" + data.code;
+
+  isHost = false;
+
+  showStatus("🔄 در حال ورود...");
+
+  peer = new Peer();
+
+
+  peer.on("open", function() {
+
+    const conn = peer.connect(roomID);
+
+    connections.push(conn);
+
+    conn.on("open", function() {
+
+      openChat();
+
+      conn.send({
+        type: "join",
+        name: myName,
+        id: peer.id
+      });
+
+    });
+
+
+    conn.on("data", function(data) {
+
+      handleGuestData(data);
+
+    });
+
+
+    conn.on("close", function() {
+
+      addMessage("🔴 اتصال به میزبان قطع شد", false);
+
+    });
+
+  });
+
+
+  peer.on("error", function(err) {
+
+    showStatus("❌ ورود ناموفق: " + err.type);
+
+  });
+
+}
+
+
+// باز کردن چت
+function openChat() {
+
+  document.getElementById("login").style.display = "none";
+
+  document.getElementById("chat").style.display = "block";
+
+  document.getElementById("roomInfo").innerText =
+    "روم: " + roomID.replace("room-", "");
+
+}
+
+
+// داده‌های میزبان
+function handleHostData(conn, data) {
+
+  if (data.type === "join") {
+
+    if (players.length >= MAX_PLAYERS) {
+
+      conn.send({
+        type: "full"
+      });
+
+      conn.close();
+
+      return;
+
+    }
+
+
+    players.push({
+      id: data.id,
+      name: data.name,
+      host: false
+    });
+
+
+    broadcast({
+      type: "players",
+      players: players
+    });
+
+
+    updatePlayers();
+
+
+    broadcast({
+      type: "system",
+      message: "🟢 " + data.name + " وارد روم شد"
+    });
+
+
+    addMessage("🟢 " + data.name + " وارد روم شد", false);
+
+  }
+
+
+  if (data.type === "message") {
+
+    broadcast(data);
+
+    addMessage(data.name + ": " + data.message, false);
+
+  }
+
+}
+
+
+// داده‌های میهمان
+function handleGuestData(data) {
+
+  if (data.type === "full") {
+
+    alert("❌ ظرفیت روم پر است");
+
+    location.reload();
+
+  }
+
+
+  if (data.type === "players") {
+
+    players = data.players;
+
+    updatePlayers();
+
+  }
+
+
+  if (data.type === "message") {
+
+    addMessage(data.name + ": " + data.message, false);
+
+  }
+
+
+  if (data.type === "system") {
+
+    addMessage(data.message, false);
+
+  }
+
+}
+
+
+// ارسال به تمام اعضا
+function broadcast(data) {
+
+  connections.forEach(conn => {
+
+    if (conn.open) {
+
+      conn.send(data);
+
+    }
+
+  });
+
+}
+
+
+// ارسال پیام
+function sendMessage() {
+
+  const input = document.getElementById("message");
+
+  const text = input.value.trim();
+
+  if (!text) return;
+
+
+  const data = {
+    type: "message",
+    name: myName,
+    message: text
+  };
+
+
+  if (isHost) {
+
+    broadcast(data);
+
+  } else {
+
+    connections.forEach(conn => {
+
+      if (conn.open) {
+
+        conn.send(data);
+
       }
 
-      status.innerText = "🔄 در حال ساخت روم...";
+    });
 
-      peer = new Peer("room-123");
+  }
 
-      peer.on("open", function() {
 
-        status.innerText = "✅ روم ساخته شد\nمنتظر بازیکن دوم...";
+  addMessage("من: " + text, true);
 
-      });
+  input.value = "";
 
-      peer.on("connection", function(conn) {
+}
 
-        connection = conn;
 
-        setupConnection();
+// نمایش پیام
+function addMessage(text, mine) {
 
-      });
+  const messages = document.getElementById("messages");
 
-      peer.on("error", function(err) {
+  const div = document.createElement("div");
 
-        status.innerText = "❌ خطا: " + err.type;
+  div.className = "msg";
 
-      });
+  div.innerText = text;
 
-    }
+  messages.appendChild(div);
 
-    function joinRoom() {
+  messages.scrollTop = messages.scrollHeight;
 
-      const code = document.getElementById("room").value;
+}
 
-      if (code !== "123") {
-        status.innerText = "❌ فقط روم 123 وجود دارد";
-        return;
-      }
 
-      status.innerText = "🔄 در حال اتصال...";
+// نمایش بازیکنان
+function updatePlayers() {
 
-      peer = new Peer();
+  const list = document.getElementById("playersList");
 
-      peer.on("open", function() {
+  list.innerHTML = "";
 
-        connection = peer.connect("room-123");
 
-        setupConnection();
+  players.forEach(player => {
 
-      });
+    const div = document.createElement("div");
 
-      peer.on("error", function(err) {
+    div.className = "player";
 
-        status.innerText = "❌ اتصال ناموفق";
+    div.innerText =
+      (player.host ? "👑 " : "👤 ") + player.name;
 
-      });
+    list.appendChild(div);
 
-    }
+  });
 
-    function setupConnection() {
+}
 
-      connection.on("open", function() {
-
-        document.getElementById("login").style.display = "none";
-
-        document.getElementById("chat").style.display = "block";
-
-        addMessage("🟢 به روم متصل شدی", false);
-
-      });
-
-      connection.on("data", function(data) {
-
-        addMessage("حریف: " + data, false);
-
-      });
-
-      connection.on("close", function() {
-
-        addMessage("🔴 اتصال قطع شد", false);
-
-      });
-
-    }
-
-    function sendMessage() {
-
-      const input = document.getElementById("message");
-
-      const text = input.value.trim();
-
-      if (!text || !connection || !connection.open) {
-        return;
-      }
-
-      connection.send(text);
-
-      addMessage("من: " + text, true);
-
-      input.value = "";
-
-    }
-
-    function addMessage(text, mine) {
-
-      const messages = document.getElementById("messages");
-
-      const div = document.createElement("div");
-
-      div.className = "msg" + (mine ? " me" : "");
-
-      div.innerText = text;
-
-      messages.appendChild(div);
-
-      messages.scrollTop = messages.scrollHeight;
-
-    }
-
-  </script>
+</script>
 
 </body>
-  </html>
+</html>
