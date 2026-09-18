@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>روم آنلاین</title>
+
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      background: #20232a;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+      padding-top: 80px;
+    }
+
+    .box {
+      background: #2c303a;
+      padding: 25px;
+      border-radius: 15px;
+      width: 280px;
+      margin: auto;
+    }
+
+    input, button {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 13px;
+      margin-top: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 17px;
+    }
+
+    button {
+      background: #4caf50;
+      color: white;
+    }
+
+    #status {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="box">
+
+    <h2>🎮 بازی آنلاین</h2>
+
+    <input
+      id="room"
+      placeholder="کد روم"
+      maxlength="3"
+    >
+
+    <button onclick="joinRoom()">
+      ورود به روم
+    </button>
+
+    <div id="status">منتظر ورود...</div>
+
+  </div>
+
+  <script>
+
+    let peer;
+    let connection;
+
+    const status = document.getElementById("status");
+
+    function joinRoom() {
+
+      const code = document.getElementById("room").value;
+
+      if (code !== "123") {
+        status.innerText = "❌ فقط روم 123 وجود دارد";
+        return;
+      }
+
+      status.innerText = "🔄 در حال اتصال...";
+
+      const roomID = "room-123";
+
+      // تلاش برای ساخت روم
+      peer = new Peer(roomID);
+
+      peer.on("open", function(id) {
+
+        status.innerText = "✅ روم ساخته شد\nمنتظر بازیکن دوم...";
+
+      });
+
+      // اگر بازیکن دوم وارد شود
+      peer.on("connection", function(conn) {
+
+        connection = conn;
+
+        status.innerText = "🎮 بازیکن دوم وارد شد!";
+
+        connection.on("data", function(data) {
+          console.log("پیام:", data);
+        });
+
+      });
+
+      // اگر روم از قبل وجود داشته باشد
+      peer.on("error", function(err) {
+
+        if (err.type === "unavailable-id") {
+
+          peer.destroy();
+
+          peer = new Peer();
+
+          peer.on("open", function() {
+
+            connection = peer.connect(roomID);
+
+            connection.on("open", function() {
+
+              status.innerText = "✅ وارد روم شدی!";
+
+              connection.send("سلام از بازیکن دوم!");
+
+            });
+
+          });
+
+        } else {
+
+          status.innerText = "❌ خطا در اتصال";
+
+          console.log(err);
+
+        }
+
+      });
+
+    }
+
+  </script>
+
+</body>
+</html>
