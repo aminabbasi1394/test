@@ -309,7 +309,7 @@ audio{
     <div class="top-actions">
       <button onclick="copyInvite()">🔗 دعوت</button>
       <button onclick="toggleMic()" id="micBtn">🎤 میکروفون</button>
-      <button onclick="toggleAudio()" id="audioBtn">🔇 روشن کردن صدا</button>
+      <button onclick="toggleAudio()" id="audioBtn">🔊 روشن کردن صدا</button>
       <button onclick="leaveRoom()">🚪 خروج</button>
     </div>
   </header>
@@ -819,7 +819,7 @@ async function toggleMic(){
       });
 
     microphoneEnabled = true;
-    $("micBtn").textContent = "🔇 خاموش کردن";
+    $("micBtn").textContent = "🔇خاموش کردن میکروفون";
 
     addSystem("میکروفون فعال شد.");
     closeAllCalls();
@@ -962,10 +962,10 @@ function toggleAudio(){
   const button = $("audioBtn");
 
   if(audioEnabled){
-    button.textContent = "🔊 خاموش کردن صدا";
+    button.textContent = "🔇 خاموش کردن صدا";
     addSystem("پخش صدا فعال شد.");
   }else{
-    button.textContent = "🔇 روشن کردن صدا";
+    button.textContent = "🔊 روشن کردن صدا";
     addSystem("پخش صدا خاموش شد.");
   }
 }
