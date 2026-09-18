@@ -1,998 +1,1015 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>VoiceRoom</title>
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoiceRoom</title>
 
-<style>
-*{
-  box-sizing:border-box;
-  font-family:Tahoma,Arial,sans-serif;
-}
-body{
-  margin:0;
-  background:#0d111c;
-  color:#fff;
-}
-button,input{
-  font:inherit;
-}
-button{
-  border:0;
-  border-radius:12px;
-  padding:12px 15px;
-  cursor:pointer;
-  color:white;
-  background:#5865f2;
-  transition:.2s;
-}
-button:hover{background:#4752c4}
-input{
-  width:100%;
-  padding:13px;
-  margin:7px 0;
-  border:1px solid #30384e;
-  border-radius:11px;
-  outline:none;
-  background:#1a2131;
-  color:#fff;
-}
-input:focus{border-color:#7180ff}
-.hidden{display:none!important}
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 
-#loginScreen{
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:20px;
-}
-.login-card{
-  width:100%;
-  max-width:420px;
-  background:#171e2d;
-  border:1px solid #293247;
-  border-radius:24px;
-  padding:30px;
-  text-align:center;
-  box-shadow:0 15px 50px #0005;
-}
-.logo{
-  font-size:38px;
-  margin-bottom:5px;
-}
-.login-card h1{
-  margin:8px 0;
-  color:#8290ff;
-}
-.subtitle{
-  color:#929bb1;
-  font-size:13px;
-  margin-bottom:25px;
-}
-.form-title{
-  text-align:right;
-  font-size:12px;
-  color:#aeb8cc;
-}
-.buttons{
-  display:flex;
-  gap:8px;
-  margin-top:10px;
-}
-.buttons button{flex:1}
-#status{
-  font-size:12px;
-  color:#aeb8cc;
-  line-height:1.8;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Tahoma, sans-serif;
+    }
 
-#app{
-  display:none;
-  min-height:100vh;
-  padding:12px;
-}
-.topbar{
-  max-width:1150px;
-  margin:auto;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
-  background:#171e2d;
-  border:1px solid #293247;
-  padding:13px 16px;
-  border-radius:16px;
-}
-.brand{
-  font-size:18px;
-  font-weight:bold;
-  color:#8290ff;
-}
-.room-name{
-  font-size:12px;
-  color:#9ca8bf;
-  margin-top:4px;
-}
-.top-actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:5px;
-}
-.top-actions button{
-  padding:9px 11px;
-  font-size:12px;
-}
+    body {
+      margin: 0;
+      background: #0f1422;
+      color: white;
+      min-height: 100vh;
+    }
 
-.main{
-  max-width:1150px;
-  margin:12px auto;
-  display:grid;
-  grid-template-columns:270px 1fr;
-  gap:12px;
-}
-.side,.content{
-  background:#171e2d;
-  border:1px solid #293247;
-  border-radius:16px;
-  padding:15px;
-}
-.section-title{
-  color:#a9b5ff;
-  font-size:14px;
-  margin:5px 0 14px;
-}
-.player{
-  display:flex;
-  align-items:center;
-  gap:9px;
-  background:#222b3d;
-  border-radius:11px;
-  padding:11px;
-  margin:8px 0;
-  font-size:12px;
-}
-.avatar{
-  width:35px;
-  height:35px;
-  border-radius:50%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:#5865f2;
-  font-size:16px;
-}
-.player-info{
-  flex:1;
-}
-.player-name{
-  font-weight:bold;
-}
-.player-status{
-  color:#8d99af;
-  font-size:10px;
-  margin-top:4px;
-}
-.crown{color:#ffd34e}
+    button,
+    input {
+      font: inherit;
+    }
 
-#messages{
-  height:53vh;
-  min-height:300px;
-  overflow-y:auto;
-  padding:8px;
-  background:#0e1420;
-  border-radius:12px;
-}
-.message{
-  background:#252f43;
-  border-radius:11px;
-  padding:10px;
-  margin:8px 0;
-  font-size:13px;
-  word-break:break-word;
-}
-.message b{color:#aab4ff}
-.system{
-  text-align:center;
-  color:#8490a7;
-  font-size:11px;
-  margin:10px;
-}
-.send-box{
-  display:flex;
-  gap:7px;
-  margin-top:10px;
-}
-.send-box input{margin:0}
-.send-box button{margin:0}
+    button {
+      cursor: pointer;
+      border: none;
+    }
 
-.invite{
-  background:#202a40;
-  border-radius:12px;
-  padding:12px;
-  margin-top:15px;
-}
-.invite-title{
-  font-size:12px;
-  color:#b6c0ff;
-  margin-bottom:8px;
-}
-.invite-link{
-  direction:ltr;
-  text-align:left;
-  font-size:10px;
-  color:#aab5c9;
-  word-break:break-all;
-  background:#101722;
-  padding:9px;
-  border-radius:8px;
-}
-.invite button{
-  width:100%;
-  margin:8px 0 0;
-  font-size:12px;
-}
-#consoleLog{
-  direction:ltr;
-  text-align:left;
-  font-size:10px;
-  color:#8d99af;
-  max-height:150px;
-  overflow-y:auto;
-  background:#0e1420;
-  border-radius:8px;
-  padding:8px;
-}
-audio{
-  width:100%;
-  margin:5px 0;
-}
-.small{
-  color:#8995ac;
-  font-size:10px;
-  line-height:1.8;
-}
+    .hidden {
+      display: none !important;
+    }
 
-@media(max-width:750px){
-  .main{
-    grid-template-columns:1fr;
-  }
-  .side{order:2}
-  .content{order:1}
-  .topbar{align-items:flex-start}
-  .top-actions{width:100%}
-  .top-actions button{flex:1}
-}
-</style>
+    /* Login */
+
+    #loginScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .loginBox {
+      width: 100%;
+      max-width: 420px;
+      background: #1a2133;
+      padding: 30px;
+      border-radius: 20px;
+      border: 1px solid #35415c;
+      text-align: center;
+      box-shadow: 0 15px 40px #0005;
+    }
+
+    .loginBox h1 {
+      color: #8d9bff;
+      margin-top: 0;
+    }
+
+    .loginBox input {
+      width: 100%;
+      margin: 8px 0;
+      padding: 14px;
+      border: 1px solid #414d6b;
+      border-radius: 10px;
+      background: #111827;
+      color: white;
+      outline: none;
+      direction: ltr;
+    }
+
+    .loginBox button {
+      width: 100%;
+      padding: 13px;
+      margin-top: 10px;
+      border-radius: 10px;
+      background: #5865f2;
+      color: white;
+      font-weight: bold;
+    }
+
+    .loginBox button:hover {
+      background: #4752c4;
+    }
+
+    #loginStatus {
+      color: #ffb4b4;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+
+    /* App */
+
+    #app {
+      min-height: 100vh;
+    }
+
+    .topbar {
+      min-height: 74px;
+      padding: 12px 16px;
+      border: 1px solid #35415c;
+      border-radius: 16px;
+      background: #151b2b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #8d9bff;
+    }
+
+    .brand small {
+      font-size: 12px;
+      color: #ddd;
+      font-weight: normal;
+    }
+
+    .topButtons {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .topButtons button {
+      padding: 10px 14px;
+      border-radius: 13px;
+      background: #5865f2;
+      color: white;
+      font-size: 12px;
+      transition: 0.2s;
+    }
+
+    .topButtons button:hover {
+      filter: brightness(1.15);
+    }
+
+    #audioBtn.off {
+      background: #e5484d;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 15px;
+      padding: 15px;
+      max-width: 1400px;
+      margin: auto;
+    }
+
+    .mainPanel,
+    .sidePanel {
+      background: #171e30;
+      border: 1px solid #35415c;
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .mainPanel h2,
+    .sidePanel h3 {
+      margin-top: 0;
+      color: #aab4ff;
+    }
+
+    #roomInfo {
+      background: #101625;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      direction: ltr;
+      text-align: left;
+      word-break: break-word;
+    }
+
+    #inviteLink {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #3b4660;
+      background: #0d1320;
+      color: #cdd4ff;
+      direction: ltr;
+      margin-top: 8px;
+    }
+
+    #players {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .player {
+      background: #222b42;
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 5px;
+    }
+
+    .hostBadge {
+      color: #ffd45c;
+    }
+
+    .chatBox {
+      margin-top: 18px;
+    }
+
+    #messages {
+      height: 270px;
+      overflow-y: auto;
+      background: #0d1320;
+      border-radius: 10px;
+      padding: 10px;
+      border: 1px solid #303b55;
+    }
+
+    .message {
+      background: #252f48;
+      padding: 8px 10px;
+      border-radius: 8px;
+      margin-bottom: 7px;
+      word-break: break-word;
+    }
+
+    .message strong {
+      color: #9da8ff;
+    }
+
+    .systemMessage {
+      color: #aab4c9;
+      font-size: 12px;
+      text-align: center;
+      margin: 8px;
+    }
+
+    .chatInput {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .chatInput input {
+      flex: 1;
+      min-width: 0;
+      padding: 12px;
+      border-radius: 9px;
+      border: 1px solid #3b4660;
+      background: #0d1320;
+      color: white;
+      outline: none;
+    }
+
+    .chatInput button {
+      padding: 10px 16px;
+      border-radius: 9px;
+      background: #5865f2;
+      color: white;
+    }
+
+    #audioContainer {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    #audioContainer audio {
+      width: 100%;
+      height: 35px;
+    }
+
+    .status {
+      font-size: 12px;
+      color: #9ca8c7;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 750px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .brand {
+        width: 100%;
+        justify-content: flex-end;
+      }
+
+      .topButtons {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .topButtons button {
+        flex: 1;
+        padding: 10px 7px;
+        font-size: 11px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<section id="loginScreen">
-  <div class="login-card">
-    <div class="logo">🎙️</div>
-    <h1>VoiceRoom</h1>
-    <div class="subtitle">
-      وارد یک روم خصوصی شو و با دوستانت گفتگو کن
+  <!-- صفحه ورود -->
+
+  <section id="loginScreen">
+    <div class="loginBox">
+      <h1>🎙️ VoiceRoom</h1>
+
+      <input
+        id="nameInput"
+        type="text"
+        placeholder="نام شما"
+        maxlength="25"
+      />
+
+      <input
+        id="roomInput"
+        type="text"
+        placeholder="کد روم انگلیسی"
+        maxlength="40"
+        dir="ltr"
+      />
+
+      <button onclick="createRoom()">ساخت روم</button>
+      <button onclick="joinRoom()">ورود به روم</button>
+
+      <div id="loginStatus"></div>
     </div>
+  </section>
 
-    <div class="form-title">نام شما</div>
-    <input id="name" placeholder="مثلاً امین">
+  <!-- برنامه اصلی -->
 
-    <div class="form-title">کد روم</div>
-    <input id="room" placeholder="مثلاً room123">
+  <section id="app" class="hidden">
 
-    <div class="buttons">
-      <button onclick="createRoom()">🏠 ساخت روم</button>
-      <button onclick="joinRoom()">🚪 ورود</button>
-    </div>
+    <header class="topbar">
 
-    <p id="status">
-      کد روم باید با حرف انگلیسی شروع شود.
-    </p>
-  </div>
-</section>
+      <div class="topButtons">
+        <button onclick="copyInvite()">🔗 دعوت</button>
 
-<!-- APP -->
-<section id="app">
+        <button onclick="toggleMic()" id="micBtn">
+          🎤 میکروفون
+        </button>
 
-  <header class="topbar">
-    <div>
-      <div class="brand">🎙️ VoiceRoom</div>
-      <div class="room-name" id="roomTitle">روم</div>
-    </div>
+        <button onclick="toggleAudio()" id="audioBtn">
+          🔇 روشن کردن صدا
+        </button>
 
-    <div class="top-actions">
-      <button onclick="copyInvite()">🔗 دعوت</button>
-      <button onclick="toggleMic()" id="micBtn">🎤 میکروفون</button>
-      <button onclick="enableAudio()">🔊 صدا</button>
-      <button onclick="leaveRoom()">🚪 خروج</button>
-    </div>
-  </header>
-
-  <main class="main">
-
-    <aside class="side">
-      <h3 class="section-title">👥 اعضای روم</h3>
-      <div id="playersList"></div>
-
-      <div class="invite">
-        <div class="invite-title">🔗 لینک دعوت روم</div>
-        <div class="invite-link" id="inviteLink"></div>
-        <button onclick="copyInvite()">📋 کپی لینک دعوت</button>
+        <button onclick="leaveRoom()">
+          🚪 خروج
+        </button>
       </div>
 
-      <h3 class="section-title" style="margin-top:20px">
-        🔊 صداهای کاربران
-      </h3>
-      <div id="audioContainer"></div>
-
-      <h3 class="section-title" style="margin-top:20px">
-        🛠 گزارش اتصال
-      </h3>
-      <div id="consoleLog"></div>
-    </aside>
-
-    <section class="content">
-      <h3 class="section-title">💬 گفتگوی روم</h3>
-
-      <div id="messages"></div>
-
-      <div class="send-box">
-        <input id="message"
-               placeholder="پیامت رو بنویس..."
-               onkeydown="handleEnter(event)">
-        <button onclick="sendMessage()">ارسال</button>
+      <div class="brand">
+        VoiceRoom 🎙️
+        <small id="userInfo">وارد نشده</small>
       </div>
 
-      <p class="small">
-        برای صحبت صوتی، روی دکمه میکروفون بزن.
-      </p>
-    </section>
+    </header>
 
-  </main>
-</section>
+    <div class="layout">
 
-<script>
-const MAX_PLAYERS = 5;
+      <main class="mainPanel">
 
-let peer = null;
-let myID = "";
-let myName = "";
-let roomCode = "";
-let hostPeerId = "";
-let isHost = false;
+        <h2>روم صوتی</h2>
 
-let players = {};
-let connections = {};
-let hostConnection = null;
+        <div id="roomInfo">
+          Room: <span id="roomName">---</span>
+        </div>
 
-let localStream = null;
-let microphoneEnabled = false;
-let calls = {};
-let audioEnabled = true;
+        <label>لینک دعوت:</label>
+        <input id="inviteLink" readonly />
 
-/* ابزارها */
+        <div class="chatBox">
+          <h2>💬 چت روم</h2>
 
-const $ = id => document.getElementById(id);
+          <div id="messages"></div>
 
-function log(text){
-  const time = new Date().toLocaleTimeString();
-  $("consoleLog").innerHTML +=
-    `<div>[${time}] ${escapeHTML(text)}</div>`;
-  $("consoleLog").scrollTop = $("consoleLog").scrollHeight;
-  console.log(text);
-}
+          <div class="chatInput">
+            <input
+              id="messageInput"
+              type="text"
+              placeholder="پیام خود را بنویسید..."
+              maxlength="300"
+              onkeydown="handleEnter(event)"
+            />
 
-function escapeHTML(text){
-  return String(text)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
+            <button onclick="sendMessage()">ارسال</button>
+          </div>
+        </div>
 
-function setStatus(text){
-  $("status").textContent = text;
-}
+        <div id="audioContainer"></div>
 
-function normalizeRoomCode(value){
-  const code = value.trim().toLowerCase();
+        <div class="status" id="connectionStatus">
+          وضعیت: آماده
+        </div>
 
-  if(!/^[a-z][a-z0-9-]{2,39}$/.test(code)){
-    throw new Error(
-      "کد باید با حرف انگلیسی شروع شود و فقط شامل حروف انگلیسی، عدد و - باشد."
-    );
-  }
+      </main>
 
-  return code;
-}
+      <aside class="sidePanel">
+        <h3>👥 اعضای روم</h3>
+        <div id="players"></div>
+      </aside>
 
-/* لینک دعوت */
+    </div>
 
-function getInviteLink(){
-  return location.origin +
-    location.pathname +
-    "#room=" + encodeURIComponent(roomCode);
-}
+  </section>
 
-function updateInviteLink(){
-  $("inviteLink").textContent = getInviteLink();
-}
+  <script>
+    let peer = null;
+    let roomCode = "";
+    let userName = "";
+    let isHost = false;
 
-async function copyInvite(){
-  const link = getInviteLink();
+    let localStream = null;
+    let micEnabled = false;
+    let audioEnabled = false;
 
-  try{
-    await navigator.clipboard.writeText(link);
-    addSystem("لینک دعوت کپی شد ✅");
-  }catch(error){
-    const temp = document.createElement("input");
-    temp.value = link;
-    document.body.appendChild(temp);
-    temp.select();
-    document.execCommand("copy");
-    temp.remove();
-    addSystem("لینک دعوت کپی شد ✅");
-  }
-}
+    let connections = {};
+    let calls = {};
+    let players = {};
 
-/* ورود خودکار از لینک */
+    const $ = id => document.getElementById(id);
 
-function loadRoomFromURL(){
-  const hash = location.hash;
+    /* ابزارهای کمکی */
 
-  if(!hash.startsWith("#room=")) return;
-
-  const code = decodeURIComponent(hash.substring(6));
-
-  if(code){
-    $("room").value = code;
-    setStatus("کد روم از لینک دعوت وارد شد.");
-  }
-}
-
-/* ساخت و ورود به روم */
-
-function createRoom(){
-  const name = $("name").value.trim();
-
-  if(!name){
-    setStatus("لطفاً نام خود را وارد کنید.");
-    return;
-  }
-
-  try{
-    roomCode = normalizeRoomCode($("room").value);
-  }catch(error){
-    setStatus(error.message);
-    return;
-  }
-
-  myName = name;
-  hostPeerId = roomCode;
-  isHost = true;
-  players = {};
-  connections = {};
-
-  log("در حال ساخت روم...");
-  createPeer(hostPeerId);
-}
-
-function joinRoom(){
-  const name = $("name").value.trim();
-
-  if(!name){
-    setStatus("لطفاً نام خود را وارد کنید.");
-    return;
-  }
-
-  try{
-    roomCode = normalizeRoomCode($("room").value);
-  }catch(error){
-    setStatus(error.message);
-    return;
-  }
-
-  myName = name;
-  hostPeerId = roomCode;
-  isHost = false;
-  players = {};
-  connections = {};
-
-  log("در حال اتصال به روم...");
-  createPeer(null);
-}
-
-function createPeer(customID){
-  peer = customID
-    ? new Peer(customID,{debug:1})
-    : new Peer(undefined,{debug:1});
-
-  peer.on("open",id=>{
-    myID = id;
-    log("شناسه: " + id);
-
-    if(isHost){
-      players[myID] = {
-        id:myID,
-        name:myName,
-        host:true
-      };
-
-      showApp();
-      addSystem("روم با موفقیت ساخته شد ✅");
-      updatePlayers();
-
-    }else{
-      showApp();
-
-      hostConnection = peer.connect(hostPeerId,{
-        reliable:true
-      });
-
-      setupConnection(hostConnection);
-      addSystem("در حال اتصال به میزبان...");
-    }
-  });
-
-  peer.on("connection",connection=>{
-    if(isHost) setupConnection(connection);
-  });
-
-  peer.on("call",call=>{
-    handleIncomingCall(call);
-  });
-
-  peer.on("error",error=>{
-    log("خطا: " + error.type);
-
-    if(error.type === "unavailable-id"){
-      setStatus("این کد روم قبلاً استفاده شده است.");
-    }else if(error.type === "peer-unavailable"){
-      addSystem("روم پیدا نشد یا میزبان آنلاین نیست.");
-    }else{
-      setStatus("خطا در اتصال: " + error.type);
-    }
-  });
-}
-
-function showApp(){
-  $("loginScreen").style.display = "none";
-  $("app").style.display = "block";
-
-  $("roomTitle").textContent = "روم: " + roomCode;
-  updateInviteLink();
-}
-
-/* اتصالات */
-
-function setupConnection(connection){
-  if(!connection) return;
-
-  connections[connection.peer] = connection;
-
-  connection.on("open",()=>{
-    log("اتصال برقرار شد.");
-
-    if(isHost){
-      connection.send({
-        type:"welcome",
-        hostID:myID,
-        players:players
-      });
-    }else{
-      connection.send({
-        type:"join",
-        name:myName
-      });
-    }
-  });
-
-  connection.on("data",data=>{
-    if(isHost){
-      handleHostData(data,connection);
-    }else{
-      handleGuestData(data);
-    }
-  });
-
-  connection.on("close",()=>{
-    const id = connection.peer;
-
-    delete connections[id];
-
-    if(isHost && players[id]){
-      addSystem(players[id].name + " از روم خارج شد.");
-      delete players[id];
-
-      broadcast({
-        type:"players",
-        players:players
-      });
-
-      updatePlayers();
-    }
-  });
-}
-
-function handleHostData(data,connection){
-  if(!data || !data.type) return;
-
-  if(data.type === "join"){
-    if(Object.keys(players).length >= MAX_PLAYERS){
-      connection.send({type:"roomFull"});
-      return;
+    function setLoginStatus(text) {
+      $("loginStatus").textContent = text;
     }
 
-    players[connection.peer] = {
-      id:connection.peer,
-      name:String(data.name || "کاربر"),
-      host:false
-    };
+    function setStatus(text) {
+      $("connectionStatus").textContent = "وضعیت: " + text;
+    }
 
-    connection.send({
-      type:"welcome",
-      hostID:myID,
-      players:players
-    });
+    function normalizeRoomCode(value) {
+      return value
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, "");
+    }
 
-    broadcast({
-      type:"players",
-      players:players
-    });
+    function validRoomCode(code) {
+      return /^[a-z][a-z0-9-]{2,39}$/.test(code);
+    }
 
-    broadcast({
-      type:"system",
-      message:players[connection.peer].name + " وارد روم شد."
-    });
+    function getInviteLink() {
+      return location.origin +
+        location.pathname +
+        "#room=" +
+        encodeURIComponent(roomCode);
+    }
 
-    updatePlayers();
-  }
+    function loadRoomFromURL() {
+      const hash = location.hash;
 
-  if(data.type === "message"){
-    addMessage(data.name,data.message);
-    broadcast(data,connection.peer);
-  }
+      if (hash.startsWith("#room=")) {
+        const code = decodeURIComponent(
+          hash.substring(6)
+        );
 
-  if(data.type === "leave"){
-    delete players[connection.peer];
-
-    broadcast({
-      type:"players",
-      players:players
-    });
-
-    updatePlayers();
-  }
-}
-
-function handleGuestData(data){
-  if(!data || !data.type) return;
-
-  if(data.type === "welcome"){
-    hostPeerId = data.hostID || hostPeerId;
-    players = data.players || {};
-
-    addSystem("با موفقیت وارد روم شدید ✅");
-    updatePlayers();
-    ensureVoiceConnections();
-  }
-
-  if(data.type === "players"){
-    players = data.players || {};
-    updatePlayers();
-    ensureVoiceConnections();
-  }
-
-  if(data.type === "message"){
-    addMessage(data.name,data.message);
-  }
-
-  if(data.type === "system"){
-    addSystem(data.message);
-  }
-
-  if(data.type === "roomFull"){
-    addSystem("ظرفیت روم تکمیل است.");
-  }
-}
-
-function broadcast(data,exceptID=null){
-  Object.keys(connections).forEach(id=>{
-    if(id === exceptID) return;
-
-    const connection = connections[id];
-
-    if(connection && connection.open){
-      try{
-        connection.send(data);
-      }catch(error){
-        log("ارسال ناموفق");
+        $("roomInput").value = code;
       }
     }
-  });
-}
 
-/* اعضا */
+    async function copyInvite() {
+      const link = getInviteLink();
 
-function updatePlayers(){
-  const list = $("playersList");
-  list.innerHTML = "";
+      try {
+        await navigator.clipboard.writeText(link);
+        addSystem("لینک دعوت کپی شد 🔗");
+      } catch {
+        $("inviteLink").select();
+        document.execCommand("copy");
+        addSystem("لینک دعوت کپی شد 🔗");
+      }
+    }
 
-  Object.values(players).forEach(player=>{
-    const div = document.createElement("div");
-    div.className = "player";
+    /* ساخت و ورود به روم */
 
-    const firstLetter =
-      String(player.name).charAt(0).toUpperCase();
+    function createRoom() {
+      userName = $("nameInput").value.trim();
+      roomCode = normalizeRoomCode($("roomInput").value);
 
-    div.innerHTML = `
-      <div class="avatar">${escapeHTML(firstLetter)}</div>
-      <div class="player-info">
-        <div class="player-name">
-          ${escapeHTML(player.name)}
-          ${player.host ? '<span class="crown"> 👑</span>' : ""}
-        </div>
-        <div class="player-status">
-          ${player.host ? "میزبان" : "عضو روم"}
-        </div>
-      </div>
-    `;
+      if (!userName) {
+        setLoginStatus("لطفاً نام خود را وارد کنید.");
+        return;
+      }
 
-    list.appendChild(div);
-  });
-}
+      if (!validRoomCode(roomCode)) {
+        setLoginStatus(
+          "کد روم باید حداقل ۳ حرف داشته باشد و با حروف انگلیسی شروع شود."
+        );
+        return;
+      }
 
-/* چت */
+      isHost = true;
+      startPeer(roomCode);
+    }
 
-function sendMessage(){
-  const input = $("message");
-  const message = input.value.trim();
+    function joinRoom() {
+      userName = $("nameInput").value.trim();
+      roomCode = normalizeRoomCode($("roomInput").value);
 
-  if(!message) return;
+      if (!userName) {
+        setLoginStatus("لطفاً نام خود را وارد کنید.");
+        return;
+      }
 
-  const data = {
-    type:"message",
-    name:myName,
-    message:message
-  };
+      if (!validRoomCode(roomCode)) {
+        setLoginStatus("کد روم صحیح نیست.");
+        return;
+      }
 
-  addMessage(myName,message);
+      isHost = false;
+      startPeer();
+    }
 
-  if(isHost){
-    broadcast(data);
-  }else if(hostConnection && hostConnection.open){
-    hostConnection.send(data);
-  }
+    function startPeer(customId = null) {
+      setLoginStatus("در حال اتصال...");
 
-  input.value = "";
-  input.focus();
-}
+      peer = customId
+        ? new Peer(customId)
+        : new Peer();
 
-function handleEnter(event){
-  if(event.key === "Enter") sendMessage();
-}
+      peer.on("open", id => {
+        showApp();
 
-function addMessage(name,message){
-  const div = document.createElement("div");
-  div.className = "message";
+        players[id] = {
+          id: id,
+          name: userName,
+          host: isHost
+        };
 
-  div.innerHTML =
-    `<b>${escapeHTML(name)}:</b> ${escapeHTML(message)}`;
+        updatePlayers();
 
-  $("messages").appendChild(div);
-  scrollMessages();
-}
+        if (isHost) {
+          addSystem("روم با موفقیت ساخته شد 🎉");
+        } else {
+          connectToHost();
+        }
 
-function addSystem(message){
-  const div = document.createElement("div");
-  div.className = "system";
-  div.textContent = "— " + message + " —";
-
-  $("messages").appendChild(div);
-  scrollMessages();
-}
-
-function scrollMessages(){
-  $("messages").scrollTop = $("messages").scrollHeight;
-}
-
-/* میکروفون */
-
-async function toggleMic(){
-  if(microphoneEnabled){
-    stopMicrophone();
-    return;
-  }
-
-  try{
-    localStream =
-      await navigator.mediaDevices.getUserMedia({
-        audio:true,
-        video:false
+        setupPeerEvents();
       });
 
-    microphoneEnabled = true;
-    $("micBtn").textContent = "🔇 خاموش کردن";
+      peer.on("error", error => {
+        console.error(error);
 
-    addSystem("میکروفون فعال شد.");
-    closeAllCalls();
-
-    setTimeout(ensureVoiceConnections,500);
-
-  }catch(error){
-    addSystem("دسترسی به میکروفون داده نشد.");
-    log(error.message);
-  }
-}
-
-function stopMicrophone(){
-  if(localStream){
-    localStream.getTracks().forEach(track=>track.stop());
-    localStream = null;
-  }
-
-  microphoneEnabled = false;
-  $("micBtn").textContent = "🎤 میکروفون";
-
-  closeAllCalls();
-  addSystem("میکروفون خاموش شد.");
-}
-
-function ensureVoiceConnections(){
-  if(!peer || !microphoneEnabled || !localStream) return;
-
-  Object.keys(players).forEach(id=>{
-    if(id === myID) return;
-
-    if(!calls[id]){
-      startCall(id);
+        if (error.type === "unavailable-id") {
+          setLoginStatus("این کد روم قبلاً استفاده شده است.");
+        } else {
+          setLoginStatus("خطا در اتصال به سرور.");
+        }
+      });
     }
-  });
-}
 
-function startCall(targetID){
-  if(!peer || !localStream || calls[targetID]) return;
+    function setupPeerEvents() {
+      peer.on("connection", connection => {
+        setupConnection(connection);
+      });
 
-  const call = peer.call(targetID,localStream);
+      peer.on("call", call => {
+        handleIncomingCall(call);
+      });
+    }
 
-  if(!call) return;
+    function showApp() {
+      $("loginScreen").classList.add("hidden");
+      $("app").classList.remove("hidden");
 
-  calls[targetID] = call;
+      $("roomName").textContent = roomCode;
+      $("userInfo").textContent =
+        userName + (isHost ? " 👑" : "");
 
-  call.on("stream",stream=>{
-    playAudio(targetID,stream);
-  });
+      $("inviteLink").value = getInviteLink();
 
-  call.on("close",()=>{
-    delete calls[targetID];
-    removeAudio(targetID);
-  });
+      setStatus("متصل");
+    }
 
-  call.on("error",()=>{
-    delete calls[targetID];
-    removeAudio(targetID);
-  });
-}
+    /* ارتباط داده‌ای */
 
-function handleIncomingCall(call){
-  if(calls[call.peer]){
-    call.close();
-    return;
-  }
+    function connectToHost() {
+      const connection = peer.connect(roomCode, {
+        reliable: true
+      });
 
-  calls[call.peer] = call;
-  call.answer(localStream || undefined);
+      setupConnection(connection);
+    }
 
-  call.on("stream",stream=>{
-    playAudio(call.peer,stream);
-  });
+    function setupConnection(connection) {
+      connections[connection.peer] = connection;
 
-  call.on("close",()=>{
-    delete calls[call.peer];
-    removeAudio(call.peer);
-  });
+      connection.on("open", () => {
+        connection.send({
+          type: "join",
+          id: peer.id,
+          name: userName
+        });
 
-  call.on("error",()=>{
-    delete calls[call.peer];
-    removeAudio(call.peer);
-  });
-}
+        if (!isHost) {
+          connection.send({
+            type: "requestPlayers"
+          });
+        }
+      });
 
-function playAudio(id,stream){
-  let audio = document.getElementById("audio-"+id);
+      connection.on("data", data => {
+        if (isHost) {
+          handleHostData(connection, data);
+        } else {
+          handleGuestData(data);
+        }
+      });
 
-  if(!audio){
-    audio = document.createElement("audio");
-    audio.id = "audio-"+id;
-    audio.autoplay = true;
-    audio.playsInline = true;
-    audio.controls = true;
+      connection.on("close", () => {
+        delete connections[connection.peer];
 
-    $("audioContainer").appendChild(audio);
-  }
+        if (players[connection.peer]) {
+          addSystem(
+            players[connection.peer].name +
+            " از روم خارج شد."
+          );
 
-  audio.srcObject = stream;
+          delete players[connection.peer];
+          updatePlayers();
+        }
 
-  if(audioEnabled){
-    audio.play().catch(()=>{
-      log("برای پخش صدا روی دکمه صدا بزنید.");
-    });
-  }
-}
+        removeAudio(connection.peer);
+      });
 
-function removeAudio(id){
-  const audio = document.getElementById("audio-"+id);
+      connection.on("error", error => {
+        console.log("Connection error:", error);
+      });
+    }
 
-  if(audio){
-    audio.srcObject = null;
-    audio.remove();
-  }
-}
+    function handleHostData(connection, data) {
+      if (data.type === "join") {
+        if (Object.keys(players).length >= 5) {
+          connection.send({
+            type: "full"
+          });
 
-function closeAllCalls(){
-  Object.keys(calls).forEach(id=>{
-    try{
-      calls[id].close();
-    }catch(error){}
+          return;
+        }
 
-    removeAudio(id);
-  });
+        players[data.id] = {
+          id: data.id,
+          name: data.name,
+          host: false
+        };
 
-  calls = {};
-}
+        broadcast({
+          type: "players",
+          players: players
+        });
 
-function enableAudio(){
-  audioEnabled = true;
+        broadcast({
+          type: "system",
+          text: data.name + " وارد روم شد 🎉"
+        });
 
-  document.querySelectorAll("audio").forEach(audio=>{
-    audio.play().catch(()=>{});
-  });
+        updatePlayers();
+      }
 
-  addSystem("پخش صدا فعال شد.");
-}
+      if (data.type === "requestPlayers") {
+        connection.send({
+          type: "players",
+          players: players
+        });
+      }
 
-/* خروج */
+      if (data.type === "chat") {
+        broadcast(data);
+        addMessage(data.name, data.text);
+      }
+    }
 
-function leaveRoom(){
-  if(isHost){
-    broadcast({
-      type:"system",
-      message:"میزبان روم را ترک کرد."
-    });
-  }else if(hostConnection && hostConnection.open){
-    hostConnection.send({
-      type:"leave"
-    });
-  }
+    function handleGuestData(data) {
+      if (data.type === "players") {
+        players = data.players;
+        updatePlayers();
+      }
 
-  stopMicrophone();
+      if (data.type === "chat") {
+        addMessage(data.name, data.text);
+      }
 
-  Object.values(connections).forEach(connection=>{
-    try{
-      connection.close();
-    }catch(error){}
-  });
+      if (data.type === "system") {
+        addSystem(data.text);
+      }
 
-  if(peer){
-    try{
-      peer.destroy();
-    }catch(error){}
-  }
+      if (data.type === "full") {
+        alert("ظرفیت روم تکمیل است.");
+        leaveRoom();
+      }
+    }
 
-  location.href = location.pathname;
-}
+    function broadcast(data, exceptId = null) {
+      Object.values(connections).forEach(connection => {
+        if (
+          connection.open &&
+          connection.peer !== exceptId
+        ) {
+          connection.send(data);
+        }
+      });
+    }
 
-/* شروع */
+    /* اعضای روم */
 
-loadRoomFromURL();
-</script>
+    function updatePlayers() {
+      $("players").innerHTML = "";
+
+      Object.values(players).forEach(player => {
+        const div = document.createElement("div");
+
+        div.className = "player";
+
+        const name = document.createElement("span");
+        name.textContent = player.name;
+
+        const badge = document.createElement("span");
+
+        if (player.host) {
+          badge.textContent = "👑";
+          badge.className = "hostBadge";
+        } else {
+          badge.textContent = "🎧";
+        }
+
+        div.appendChild(name);
+        div.appendChild(badge);
+
+        $("players").appendChild(div);
+      });
+    }
+
+    /* چت */
+
+    function sendMessage() {
+      const input = $("messageInput");
+      const text = input.value.trim();
+
+      if (!text) return;
+
+      const data = {
+        type: "chat",
+        name: userName,
+        text: text
+      };
+
+      addMessage(userName, text);
+
+      if (isHost) {
+        broadcast(data);
+      } else {
+        Object.values(connections).forEach(connection => {
+          if (connection.open) {
+            connection.send(data);
+          }
+        });
+      }
+
+      input.value = "";
+    }
+
+    function handleEnter(event) {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    }
+
+    function addMessage(name, text) {
+      const message = document.createElement("div");
+
+      message.className = "message";
+
+      const strong = document.createElement("strong");
+      strong.textContent = name + ": ";
+
+      const span = document.createElement("span");
+      span.textContent = text;
+
+      message.appendChild(strong);
+      message.appendChild(span);
+
+      $("messages").appendChild(message);
+      scrollMessages();
+    }
+
+    function addSystem(text) {
+      const message = document.createElement("div");
+
+      message.className = "systemMessage";
+      message.textContent = text;
+
+      $("messages").appendChild(message);
+      scrollMessages();
+    }
+
+    function scrollMessages() {
+      $("messages").scrollTop = $("messages").scrollHeight;
+    }
+
+    /* میکروفون */
+
+    async function toggleMic() {
+      if (!micEnabled) {
+        try {
+          localStream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: false
+          });
+
+          micEnabled = true;
+
+          $("micBtn").textContent = "🎤 خاموش کردن میکروفون";
+          $("micBtn").style.background = "#e5484d";
+
+          startCallsToUsers();
+
+          addSystem("میکروفون روشن شد 🎤");
+        } catch (error) {
+          alert("دسترسی به میکروفون داده نشد.");
+          console.error(error);
+        }
+      } else {
+        stopMicrophone();
+
+        micEnabled = false;
+
+        $("micBtn").textContent = "🎤 میکروفون";
+        $("micBtn").style.background = "#5865f2";
+
+        addSystem("میکروفون خاموش شد 🔇");
+      }
+    }
+
+    function startCallsToUsers() {
+      Object.keys(players).forEach(id => {
+        if (id === peer.id) return;
+        if (calls[id]) return;
+
+        startCall(id);
+      });
+    }
+
+    function startCall(id) {
+      if (!localStream || !peer) return;
+
+      const call = peer.call(id, localStream);
+
+      if (!call) return;
+
+      calls[id] = call;
+
+      call.on("stream", remoteStream => {
+        playAudio(id, remoteStream);
+      });
+
+      call.on("close", () => {
+        removeAudio(id);
+        delete calls[id];
+      });
+
+      call.on("error", error => {
+        console.log("Call error:", error);
+      });
+    }
+
+    function handleIncomingCall(call) {
+      calls[call.peer] = call;
+
+      if (localStream) {
+        call.answer(localStream);
+      } else {
+        call.answer();
+      }
+
+      call.on("stream", remoteStream => {
+        playAudio(call.peer, remoteStream);
+      });
+
+      call.on("close", () => {
+        removeAudio(call.peer);
+        delete calls[call.peer];
+      });
+    }
+
+    function playAudio(id, stream) {
+      let audio = $("audio-" + id);
+
+      if (!audio) {
+        audio = document.createElement("audio");
+
+        audio.id = "audio-" + id;
+        audio.autoplay = true;
+        audio.playsInline = true;
+        audio.controls = true;
+        audio.setAttribute("aria-label", "صدای کاربر");
+
+        $("audioContainer").appendChild(audio);
+      }
+
+      audio.srcObject = stream;
+
+      // وضعیت دکمه بلندگو روی صدای دریافتی اعمال می‌شود
+      audio.muted = !audioEnabled;
+
+      if (audioEnabled) {
+        audio.play().catch(() => {});
+      }
+    }
+
+    /* روشن و خاموش کردن صدای دیگران */
+
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+
+      document
+        .querySelectorAll("#audioContainer audio")
+        .forEach(audio => {
+          audio.muted = !audioEnabled;
+
+          if (audioEnabled) {
+            audio.play().catch(() => {});
+          }
+        });
+
+      const button = $("audioBtn");
+
+      if (audioEnabled) {
+        button.textContent = "🔊 خاموش کردن صدا";
+        button.classList.remove("off");
+
+        addSystem("صدای کاربران روشن شد 🔊");
+      } else {
+        button.textContent = "🔇 روشن کردن صدا";
+        button.classList.add("off");
+
+        addSystem("صدای کاربران خاموش شد 🔇");
+      }
+    }
+
+    function removeAudio(id) {
+      const audio = $("audio-" + id);
+
+      if (audio) {
+        audio.srcObject = null;
+        audio.remove();
+      }
+    }
+
+    function stopMicrophone() {
+      if (localStream) {
+        localStream.getTracks().forEach(track => {
+          track.stop();
+        });
+
+        localStream = null;
+      }
+
+      Object.values(calls).forEach(call => {
+        try {
+          call.close();
+        } catch {}
+      });
+
+      calls = {};
+    }
+
+    /* خروج */
+
+    function leaveRoom() {
+      stopMicrophone();
+
+      Object.values(connections).forEach(connection => {
+        try {
+          connection.close();
+        } catch {}
+      });
+
+      connections = {};
+
+      if (peer) {
+        peer.destroy();
+        peer = null;
+      }
+
+      location.hash = "";
+      location.reload();
+    }
+
+    /* شروع */
+
+    loadRoomFromURL();
+  </script>
 
 </body>
-  </html>
+</html>
