@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>روم آنلاین</title>
+  <title>روم آنلاین صوتی و متنی</title>
 
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 
@@ -51,7 +51,7 @@
     h1 {
       margin: 0 0 25px;
       text-align: center;
-      font-size: 24px;
+      font-size: 23px;
     }
 
     input {
@@ -66,23 +66,20 @@
       font-size: 14px;
     }
 
-    input:focus {
-      border-color: #777f91;
+    .main-btn,
+    .send-btn,
+    .voice-btn {
+      border: none;
+      border-radius: 10px;
+      background: #5865f2;
+      color: white;
     }
 
     .main-btn {
       width: 100%;
       padding: 14px;
       margin-top: 8px;
-      border: none;
-      border-radius: 10px;
-      background: #5865f2;
-      color: white;
       font-size: 15px;
-    }
-
-    .main-btn:hover {
-      opacity: 0.85;
     }
 
     #status {
@@ -104,12 +101,9 @@
       font-weight: bold;
     }
 
-    /* گروه دکمه و پنل */
     .tabs {
       display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      width: 100%;
+      gap: 10px;
       margin-top: 15px;
     }
 
@@ -120,38 +114,27 @@
 
     .tab {
       width: 100%;
-      padding: 14px 8px;
+      padding: 13px 6px;
       border: none;
-      border-radius: 12px;
+      border-radius: 11px;
       background: #2c303a;
       color: white;
       font-size: 13px;
-      transform: none !important;
-      transition: background 0.2s ease;
-    }
-
-    .tab:hover {
-      background: #343946;
     }
 
     .tab.active {
-      border-radius: 12px 12px 0 0;
+      border-radius: 11px 11px 0 0;
       background: #343946;
     }
 
-    /* پنل باز و بسته‌شونده */
     .panel {
       max-height: 0;
       padding: 0 12px;
-      margin: 0;
       overflow: hidden;
       opacity: 0;
-      border-radius: 0 0 12px 12px;
+      border-radius: 0 0 11px 11px;
       background: #2c303a;
-      transition:
-        max-height 0.3s ease,
-        padding 0.3s ease,
-        opacity 0.25s ease;
+      transition: max-height .3s ease, padding .3s ease, opacity .25s ease;
     }
 
     .panel.open {
@@ -163,13 +146,9 @@
     .player {
       padding: 10px;
       margin-bottom: 8px;
-      border-radius: 9px;
+      border-radius: 8px;
       background: #20232b;
       font-size: 13px;
-    }
-
-    .player:last-child {
-      margin-bottom: 0;
     }
 
     .console-line {
@@ -177,15 +156,10 @@
       color: #c5cad5;
       font-size: 12px;
       line-height: 1.8;
-      overflow-wrap: anywhere;
-    }
-
-    .console-line:last-child {
-      margin-bottom: 0;
     }
 
     #messages {
-      height: 300px;
+      height: 280px;
       padding: 12px;
       margin-top: 12px;
       overflow-y: auto;
@@ -203,12 +177,7 @@
       overflow-wrap: anywhere;
     }
 
-    .message:last-child {
-      margin-bottom: 0;
-    }
-
     .message-name {
-      margin-bottom: 3px;
       color: #8f9aff;
       font-weight: bold;
     }
@@ -233,12 +202,24 @@
     }
 
     .send-btn {
-      width: 85px;
-      border: none;
-      border-radius: 10px;
-      background: #5865f2;
-      color: white;
+      width: 75px;
       font-size: 13px;
+    }
+
+    .voice-controls {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .voice-btn {
+      flex: 1;
+      padding: 13px 5px;
+      font-size: 12px;
+    }
+
+    .voice-btn.off {
+      background: #933d4b;
     }
 
     .room-code {
@@ -256,7 +237,10 @@
       border-radius: 10px;
       background: #3b3035;
       color: #ff9da9;
-      font-size: 13px;
+    }
+
+    #audioContainer {
+      display: none;
     }
   </style>
 </head>
@@ -265,24 +249,13 @@
 
   <div class="container">
 
-    <!-- صفحه ورود -->
     <div id="login" class="box">
 
-      <h1>🎮 ساخت روم آنلاین</h1>
+      <h1>🎮 روم صوتی و متنی</h1>
 
-      <input
-        id="name"
-        type="text"
-        placeholder="نام شما"
-        maxlength="20"
-      >
+      <input id="name" type="text" placeholder="نام شما" maxlength="20">
 
-      <input
-        id="room"
-        type="text"
-        placeholder="کد روم"
-        maxlength="30"
-      >
+      <input id="room" type="text" placeholder="کد روم" maxlength="30">
 
       <button class="main-btn" onclick="createRoom()">
         ساخت روم
@@ -297,7 +270,6 @@
     </div>
 
 
-    <!-- صفحه چت -->
     <div id="chat" class="box">
 
       <div class="room-title">
@@ -305,17 +277,12 @@
       </div>
 
 
-      <!-- هر دکمه همراه پنل خودش -->
       <div class="tabs">
 
-        <!-- گروه بازیکنان -->
         <div class="tab-group">
 
-          <button
-            id="playersTab"
-            class="tab"
-            onclick="togglePanel('players')"
-          >
+          <button id="playersTab" class="tab"
+            onclick="togglePanel('players')">
             👥 بازیکنان
           </button>
 
@@ -326,14 +293,10 @@
         </div>
 
 
-        <!-- گروه کنسول -->
         <div class="tab-group">
 
-          <button
-            id="consoleTab"
-            class="tab"
-            onclick="togglePanel('console')"
-          >
+          <button id="consoleTab" class="tab"
+            onclick="togglePanel('console')">
             🖥️ کنسول
           </button>
 
@@ -346,20 +309,16 @@
       </div>
 
 
-      <!-- پیام‌ها -->
       <div id="messages"></div>
 
 
-      <!-- ورودی پیام -->
       <div class="chat-input">
 
-        <input
-          id="message"
+        <input id="message"
           type="text"
           placeholder="پیامت رو بنویس..."
           maxlength="500"
-          onkeydown="handleEnter(event)"
-        >
+          onkeydown="handleEnter(event)">
 
         <button class="send-btn" onclick="sendMessage()">
           ارسال
@@ -368,8 +327,22 @@
       </div>
 
 
-      <div id="roomCodeText" class="room-code"></div>
+      <div class="voice-controls">
 
+        <button id="micButton"
+          class="voice-btn"
+          onclick="toggleMicrophone()">
+          🎤 روشن کردن میکروفون
+        </button>
+
+        <button class="voice-btn" onclick="stopMicrophone()">
+          🔇 قطع صدا
+        </button>
+
+      </div>
+
+
+      <div id="roomCodeText" class="room-code"></div>
 
       <button class="leave-btn" onclick="leaveRoom()">
         خروج از روم
@@ -378,6 +351,9 @@
     </div>
 
   </div>
+
+
+  <div id="audioContainer"></div>
 
 
   <script>
@@ -390,17 +366,18 @@
 
     let players = {};
     let connections = [];
-
     let activePanel = null;
 
+    let localStream = null;
+    let calls = {};
+    let micEnabled = false;
 
-    // نمایش وضعیت
+
     function setStatus(text) {
       document.getElementById("status").innerText = text;
     }
 
 
-    // ساخت روم
     function createRoom() {
 
       myName = document.getElementById("name").value.trim();
@@ -413,21 +390,11 @@
 
       roomID = "room-" + code;
       isHost = true;
-
-      players = {};
       connections = [];
-
-      players[peer ? peer.id : roomID] = {
-        name: myName,
-        host: true
-      };
 
       peer = new Peer(roomID);
 
       peer.on("open", () => {
-
-        // ثبت شناسه واقعی میزبان
-        players = {};
 
         players[peer.id] = {
           name: myName,
@@ -459,18 +426,31 @@
       });
 
 
+      peer.on("call", call => {
+
+        if (!localStream) {
+          call.answer();
+        } else {
+          call.answer(localStream);
+        }
+
+        call.on("stream", stream => {
+          playAudio(call.peer, stream);
+        });
+
+        calls[call.peer] = call;
+
+      });
+
+
       peer.on("error", error => {
-
         console.log(error);
-
-        setStatus("خطا: کد روم ممکن است قبلاً استفاده شده باشد");
-
+        setStatus("خطا در ساخت روم؛ ممکن است کد تکراری باشد");
       });
 
     }
 
 
-    // ورود به روم
     function joinRoom() {
 
       myName = document.getElementById("name").value.trim();
@@ -490,6 +470,8 @@
 
         const connection = peer.connect(roomID);
 
+        connections.push(connection);
+
         connection.on("open", () => {
 
           connection.send({
@@ -500,40 +482,41 @@
 
           showChat();
 
-          logConsole("🔄 درخواست ورود به روم ارسال شد");
+          logConsole("🔄 درخواست ورود ارسال شد");
 
         });
 
-        connection.on("data", data => {
-          handleGuestData(data);
+        connection.on("data", handleGuestData);
+
+      });
+
+
+      peer.on("call", call => {
+
+        call.answer(localStream || undefined);
+
+        call.on("stream", stream => {
+          playAudio(call.peer, stream);
         });
 
-        connection.on("close", () => {
-          logConsole("❌ اتصال به میزبان قطع شد");
-        });
+        calls[call.peer] = call;
 
       });
 
 
       peer.on("error", error => {
-
         console.log(error);
-
-        setStatus("روم پیدا نشد یا اتصال با مشکل مواجه شد");
-
+        setStatus("روم پیدا نشد یا اتصال مشکل دارد");
       });
 
     }
 
 
-    // مدیریت اطلاعات میزبان
     function handleHostData(connection, data) {
 
       if (data.type === "join") {
 
-        const playerCount = Object.keys(players).length;
-
-        if (playerCount >= MAX_PLAYERS) {
+        if (Object.keys(players).length >= MAX_PLAYERS) {
 
           connection.send({
             type: "system",
@@ -541,7 +524,6 @@
           });
 
           return;
-
         }
 
         players[data.peerID] = {
@@ -551,13 +533,11 @@
 
         logConsole("👤 " + data.name + " وارد روم شد");
 
-        // ارسال فهرست بازیکنان به همه
         broadcast({
           type: "players",
           players: players
         });
 
-        // اطلاع ورود بازیکن
         broadcast({
           type: "system",
           message: data.name + " وارد روم شد"
@@ -565,13 +545,23 @@
 
         updatePlayers();
 
+        // ارسال شناسه تمام بازیکنان برای اتصال صوتی
+        broadcast({
+          type: "voicePeers",
+          peers: Object.keys(players)
+        });
+
+        connection.send({
+          type: "voicePeers",
+          peers: Object.keys(players)
+        });
+
       }
 
 
       if (data.type === "message") {
 
         addMessage(data.name, data.message);
-
         broadcast(data);
 
       }
@@ -579,37 +569,41 @@
     }
 
 
-    // مدیریت اطلاعات مهمان
     function handleGuestData(data) {
 
       if (data.type === "players") {
 
         players = data.players;
-
         updatePlayers();
 
       }
 
-
       if (data.type === "message") {
-
         addMessage(data.name, data.message);
-
       }
-
 
       if (data.type === "system") {
 
         addSystemMessage(data.message);
-
         logConsole(data.message);
+
+      }
+
+      if (data.type === "voicePeers") {
+
+        data.peers.forEach(id => {
+
+          if (id !== peer.id && !calls[id]) {
+            startCall(id);
+          }
+
+        });
 
       }
 
     }
 
 
-    // ارسال اطلاعات به همه اتصال‌ها
     function broadcast(data) {
 
       connections.forEach(connection => {
@@ -623,7 +617,6 @@
     }
 
 
-    // نمایش صفحه چت
     function showChat() {
 
       document.getElementById("login").style.display = "none";
@@ -637,31 +630,20 @@
     }
 
 
-    // باز و بسته کردن پنل‌ها
     function togglePanel(panel) {
 
-      const playersPanel =
-        document.getElementById("playersPanel");
+      const playersPanel = document.getElementById("playersPanel");
+      const consolePanel = document.getElementById("consolePanel");
 
-      const consolePanel =
-        document.getElementById("consolePanel");
+      const playersTab = document.getElementById("playersTab");
+      const consoleTab = document.getElementById("consoleTab");
 
-      const playersTab =
-        document.getElementById("playersTab");
-
-      const consoleTab =
-        document.getElementById("consoleTab");
-
-
-      // بستن همه پنل‌ها
       playersPanel.classList.remove("open");
       consolePanel.classList.remove("open");
 
       playersTab.classList.remove("active");
       consoleTab.classList.remove("active");
 
-
-      // اگر همان پنل باز بود، فقط بسته شود
       if (activePanel === panel) {
 
         activePanel = null;
@@ -669,15 +651,12 @@
 
       }
 
-
-      // باز کردن پنل انتخاب‌شده
       if (panel === "players") {
 
         playersPanel.classList.add("open");
         playersTab.classList.add("active");
 
       }
-
 
       if (panel === "console") {
 
@@ -691,11 +670,9 @@
     }
 
 
-    // به‌روزرسانی بازیکنان
     function updatePlayers() {
 
-      const list =
-        document.getElementById("playersList");
+      const list = document.getElementById("playersList");
 
       list.innerHTML = "";
 
@@ -715,102 +692,67 @@
     }
 
 
-    // ثبت پیام در کنسول
     function logConsole(message) {
 
-      const consoleLog =
-        document.getElementById("consoleLog");
+      const log = document.getElementById("consoleLog");
 
-      const line =
-        document.createElement("div");
+      const line = document.createElement("div");
 
       line.className = "console-line";
 
       line.innerText =
-        "[" +
-        new Date().toLocaleTimeString("fa-IR") +
-        "] " +
-        message;
+        "[" + new Date().toLocaleTimeString("fa-IR") + "] " + message;
 
-      consoleLog.appendChild(line);
-
-      consoleLog.scrollTop =
-        consoleLog.scrollHeight;
+      log.appendChild(line);
+      log.scrollTop = log.scrollHeight;
 
     }
 
 
-    // پیام سیستمی
     function addSystemMessage(message) {
 
-      const messages =
-        document.getElementById("messages");
+      const messages = document.getElementById("messages");
 
-      const div =
-        document.createElement("div");
+      const div = document.createElement("div");
 
       div.className = "system-message";
-
       div.innerText = message;
 
       messages.appendChild(div);
-
-      messages.scrollTop =
-        messages.scrollHeight;
+      messages.scrollTop = messages.scrollHeight;
 
     }
 
 
-    // نمایش پیام چت
     function addMessage(name, message) {
 
-      const messages =
-        document.getElementById("messages");
+      const messages = document.getElementById("messages");
 
-      const div =
-        document.createElement("div");
-
+      const div = document.createElement("div");
       div.className = "message";
 
-
-      const nameDiv =
-        document.createElement("div");
-
+      const nameDiv = document.createElement("div");
       nameDiv.className = "message-name";
-
       nameDiv.innerText = name;
 
-
-      const messageDiv =
-        document.createElement("div");
-
-      messageDiv.innerText = message;
-
+      const textDiv = document.createElement("div");
+      textDiv.innerText = message;
 
       div.appendChild(nameDiv);
-      div.appendChild(messageDiv);
+      div.appendChild(textDiv);
 
       messages.appendChild(div);
-
-      messages.scrollTop =
-        messages.scrollHeight;
+      messages.scrollTop = messages.scrollHeight;
 
     }
 
 
-    // ارسال پیام
     function sendMessage() {
 
-      const input =
-        document.getElementById("message");
+      const input = document.getElementById("message");
+      const message = input.value.trim();
 
-      const message =
-        input.value.trim();
-
-      if (!message) {
-        return;
-      }
-
+      if (!message) return;
 
       const data = {
         type: "message",
@@ -818,9 +760,7 @@
         message: message
       };
 
-
       addMessage(myName, message);
-
 
       if (isHost) {
 
@@ -828,22 +768,19 @@
 
       } else {
 
-        const connection =
-          peer.connections[roomID];
+        const connection = connections[0];
 
-        if (connection && connection[0]) {
-          connection[0].send(data);
+        if (connection && connection.open) {
+          connection.send(data);
         }
 
       }
-
 
       input.value = "";
 
     }
 
 
-    // ارسال با Enter
     function handleEnter(event) {
 
       if (event.key === "Enter") {
@@ -853,8 +790,130 @@
     }
 
 
-    // خروج از روم
+    // فعال کردن میکروفون
+    async function toggleMicrophone() {
+
+      if (micEnabled) {
+
+        stopMicrophone();
+        return;
+
+      }
+
+      try {
+
+        localStream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: false
+        });
+
+        micEnabled = true;
+
+        const button = document.getElementById("micButton");
+
+        button.innerText = "🔴 خاموش کردن میکروفون";
+        button.classList.add("off");
+
+        logConsole("🎤 میکروفون روشن شد");
+
+        // برقراری تماس با بازیکنان موجود
+        Object.keys(players).forEach(id => {
+
+          if (id !== peer.id) {
+            startCall(id);
+          }
+
+        });
+
+      } catch (error) {
+
+        console.log(error);
+
+        alert("اجازه دسترسی به میکروفون داده نشد");
+
+      }
+
+    }
+
+
+    // برقراری تماس صوتی
+    function startCall(targetID) {
+
+      if (!peer || !localStream || calls[targetID]) {
+        return;
+      }
+
+      const call = peer.call(targetID, localStream);
+
+      calls[targetID] = call;
+
+      call.on("stream", stream => {
+        playAudio(targetID, stream);
+      });
+
+      call.on("close", () => {
+        delete calls[targetID];
+      });
+
+    }
+
+
+    // پخش صدای بازیکن
+    function playAudio(id, stream) {
+
+      let audio = document.getElementById("audio-" + id);
+
+      if (!audio) {
+
+        audio = document.createElement("audio");
+
+        audio.id = "audio-" + id;
+        audio.autoplay = true;
+        audio.controls = false;
+
+        document.getElementById("audioContainer").appendChild(audio);
+
+      }
+
+      audio.srcObject = stream;
+
+    }
+
+
+    // خاموش کردن میکروفون
+    function stopMicrophone() {
+
+      if (localStream) {
+
+        localStream.getTracks().forEach(track => {
+          track.stop();
+        });
+
+        localStream = null;
+
+      }
+
+      micEnabled = false;
+
+      const button = document.getElementById("micButton");
+
+      button.innerText = "🎤 روشن کردن میکروفون";
+      button.classList.remove("off");
+
+      logConsole("🔇 میکروفون خاموش شد");
+
+    }
+
+
     function leaveRoom() {
+
+      stopMicrophone();
+
+      Object.values(calls).forEach(call => {
+        call.close();
+      });
+
+      calls = {};
 
       if (peer) {
         peer.destroy();
@@ -865,43 +924,20 @@
       connections = [];
       activePanel = null;
 
-
-      // پاک کردن کد روم
       document.getElementById("room").value = "";
-
       document.getElementById("roomCodeText").innerText = "";
 
-
-      // بستن پنل‌ها
-      document.getElementById("playersPanel")
-        .classList.remove("open");
-
-      document.getElementById("consolePanel")
-        .classList.remove("open");
-
-      document.getElementById("playersTab")
-        .classList.remove("active");
-
-      document.getElementById("consoleTab")
-        .classList.remove("active");
-
-
-      // برگشت به صفحه ورود
       document.getElementById("chat").style.display = "none";
       document.getElementById("login").style.display = "block";
 
-
-      // پاک کردن اطلاعات قبلی
       document.getElementById("messages").innerHTML = "";
       document.getElementById("consoleLog").innerHTML = "";
       document.getElementById("playersList").innerHTML = "";
 
-
-      setStatus("روم حذف شد و از آن خارج شدی");
+      setStatus("از روم خارج شدی");
 
     }
-
   </script>
 
 </body>
-  </html>
+</html>
