@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>روم آنلاین</title>
+
+  <title>چت روم 123</title>
 
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 
@@ -13,26 +14,26 @@
       background: #20232a;
       color: white;
       font-family: Arial;
+      padding: 20px;
       text-align: center;
-      padding-top: 80px;
     }
 
     .box {
-      background: #2c303a;
-      padding: 25px;
-      border-radius: 15px;
-      width: 280px;
+      max-width: 350px;
       margin: auto;
+      background: #2c303a;
+      padding: 20px;
+      border-radius: 15px;
     }
 
     input, button {
       width: 100%;
       box-sizing: border-box;
-      padding: 13px;
-      margin-top: 12px;
+      padding: 12px;
+      margin-top: 10px;
       border: none;
       border-radius: 8px;
-      font-size: 17px;
+      font-size: 16px;
     }
 
     button {
@@ -40,8 +41,33 @@
       color: white;
     }
 
+    #chat {
+      display: none;
+    }
+
+    #messages {
+      height: 250px;
+      overflow-y: auto;
+      background: #181a1f;
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 10px;
+      text-align: right;
+    }
+
+    .msg {
+      background: #3c4350;
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 8px;
+    }
+
+    .me {
+      background: #286b40;
+    }
+
     #status {
-      margin-top: 20px;
+      margin: 15px 0;
     }
   </style>
 </head>
@@ -50,19 +76,44 @@
 
   <div class="box">
 
-    <h2>🎮 بازی آنلاین</h2>
+    <div id="login">
 
-    <input
-      id="room"
-      placeholder="کد روم"
-      maxlength="3"
-    >
+      <h2>🎮 روم 123</h2>
 
-    <button onclick="joinRoom()">
-      ورود به روم
-    </button>
+      <input
+        id="room"
+        placeholder="کد روم"
+        maxlength="3"
+      >
 
-    <div id="status">منتظر ورود...</div>
+      <button onclick="createRoom()">
+        ساخت روم
+      </button>
+
+      <button onclick="joinRoom()">
+        ورود به روم
+      </button>
+
+      <div id="status">آماده اتصال</div>
+
+    </div>
+
+    <div id="chat">
+
+      <h2>💬 چت آنلاین</h2>
+
+      <div id="messages"></div>
+
+      <input
+        id="message"
+        placeholder="پیامت رو بنویس..."
+      >
+
+      <button onclick="sendMessage()">
+        ارسال پیام 📤
+      </button>
+
+    </div>
 
   </div>
 
@@ -72,6 +123,41 @@
     let connection;
 
     const status = document.getElementById("status");
+
+    function createRoom() {
+
+      const code = document.getElementById("room").value;
+
+      if (code !== "123") {
+        status.innerText = "❌ فقط روم 123 وجود دارد";
+        return;
+      }
+
+      status.innerText = "🔄 در حال ساخت روم...";
+
+      peer = new Peer("room-123");
+
+      peer.on("open", function() {
+
+        status.innerText = "✅ روم ساخته شد\nمنتظر بازیکن دوم...";
+
+      });
+
+      peer.on("connection", function(conn) {
+
+        connection = conn;
+
+        setupConnection();
+
+      });
+
+      peer.on("error", function(err) {
+
+        status.innerText = "❌ خطا: " + err.type;
+
+      });
+
+    }
 
     function joinRoom() {
 
@@ -84,66 +170,85 @@
 
       status.innerText = "🔄 در حال اتصال...";
 
-      const roomID = "room-123";
+      peer = new Peer();
 
-      // تلاش برای ساخت روم
-      peer = new Peer(roomID);
+      peer.on("open", function() {
 
-      peer.on("open", function(id) {
+        connection = peer.connect("room-123");
 
-        status.innerText = "✅ روم ساخته شد\nمنتظر بازیکن دوم...";
-
-      });
-
-      // اگر بازیکن دوم وارد شود
-      peer.on("connection", function(conn) {
-
-        connection = conn;
-
-        status.innerText = "🎮 بازیکن دوم وارد شد!";
-
-        connection.on("data", function(data) {
-          console.log("پیام:", data);
-        });
+        setupConnection();
 
       });
 
-      // اگر روم از قبل وجود داشته باشد
       peer.on("error", function(err) {
 
-        if (err.type === "unavailable-id") {
-
-          peer.destroy();
-
-          peer = new Peer();
-
-          peer.on("open", function() {
-
-            connection = peer.connect(roomID);
-
-            connection.on("open", function() {
-
-              status.innerText = "✅ وارد روم شدی!";
-
-              connection.send("سلام از بازیکن دوم!");
-
-            });
-
-          });
-
-        } else {
-
-          status.innerText = "❌ خطا در اتصال";
-
-          console.log(err);
-
-        }
+        status.innerText = "❌ اتصال ناموفق";
 
       });
+
+    }
+
+    function setupConnection() {
+
+      connection.on("open", function() {
+
+        document.getElementById("login").style.display = "none";
+
+        document.getElementById("chat").style.display = "block";
+
+        addMessage("🟢 به روم متصل شدی", false);
+
+      });
+
+      connection.on("data", function(data) {
+
+        addMessage("حریف: " + data, false);
+
+      });
+
+      connection.on("close", function() {
+
+        addMessage("🔴 اتصال قطع شد", false);
+
+      });
+
+    }
+
+    function sendMessage() {
+
+      const input = document.getElementById("message");
+
+      const text = input.value.trim();
+
+      if (!text || !connection || !connection.open) {
+        return;
+      }
+
+      connection.send(text);
+
+      addMessage("من: " + text, true);
+
+      input.value = "";
+
+    }
+
+    function addMessage(text, mine) {
+
+      const messages = document.getElementById("messages");
+
+      const div = document.createElement("div");
+
+      div.className = "msg" + (mine ? " me" : "");
+
+      div.innerText = text;
+
+      messages.appendChild(div);
+
+      messages.scrollTop = messages.scrollHeight;
 
     }
 
   </script>
 
 </body>
-</html>
+  </html>
